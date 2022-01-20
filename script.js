@@ -76,7 +76,7 @@ function outputValid() {
 function doOperationsInOrder(expression) {
   //calculate expression in correct mathematical order
   const order = ["ₓ²", "÷", "×", "-", "+"];
-  const input = expression.slice(0);
+  const input = [...expression];
 
   for (let operator of order) {
     while (expression.includes(operator)) {
