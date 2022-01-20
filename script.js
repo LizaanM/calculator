@@ -28,36 +28,66 @@ function percent(a, b) {
   return (a / b) * 100;
 }
 
-function operate(operator, num1, num2) {
+function calculate(operator, num1, num2) {
   const operations = {
+    "ₓ²": power,
+    "×": multiply,
+    "÷": divide,
     "+": add,
     "-": subtract,
-    "*": multiply,
-    "/": divide,
-    "**": power,
-    "sqrt": squareRoot,
+    "√": squareRoot,
     "%": percent,
   };
   const operation = operations[operator];
-  if (operator === "sqrt") return operation(num1);
+  if (operator === "√") return operation(num1);
   return operation(num1, num2);
 }
 
 function showOutput(event) {
-  output.textContent += event.target.innerText;
+  if (output.textContent.length < 20) {
+    output.textContent += event.target.textContent;
+  }
 }
 
 function buildExpression(event) {
-  const operator = event.target.innerText;
-  expression.push(Number(output.textContent));
-  expression.push(operator);
-  clearOutput();
+  if (output.textContent) {
+    const operator = event.target.textContent;
+    expression.push(Number(output.textContent));
+    expression.push(operator);
+    clearOutput();
+  }
+}
+
+function validateAnswer(answer, input) {
+  if (isNaN(answer)) answer = `Invalid input...${input.join(" ").slice(-5)}`;
+  return answer === Infinity ? "Can't divide by zero..." : answer;
+}
+
+function doOperationsInOrder(expression) {
+  const order = ["ₓ²", "÷", "×", "-", "+"];
+  const input = expression.slice(0);
+
+  for (let operator of order) {
+    while (expression.includes(operator)) {
+      const index = expression.findIndex((item) => item === operator);
+      const [num1, op, num2] = expression.splice(index - 1, 3);
+      const result = calculate(op, num1, num2);
+      expression.splice(index - 1, 0, result);
+    }
+  }
+  const answer = expression.pop();
+  return validateAnswer(answer, input);
+}
+
+function outputValid() {
+  return output.textContent && output.textContent !== "-";
 }
 
 function evaluateExpression() {
-  if (output.textContent) expression.push(Number(output.textContent));
-  clearOutput();
-  console.log(expression);
+  if (outputValid()) expression.push(Number(output.textContent));
+  const answer = doOperationsInOrder(expression);
+  output.textContent = answer;
+  // clearOutput();
 }
 
 function backSpace() {
@@ -67,6 +97,40 @@ function backSpace() {
 
 function clearOutput() {
   output.textContent = "";
+}
+
+function clearExpression() {
+  expression.splice(0);
+}
+
+function getSqrt(event) {
+  buildExpression(event);
+  const [num, operator] = expression;
+  output.textContent = calculate(operator, num);
+  clearExpression();
+}
+
+function getPercentage() {
+  if (outputValid()) expression.push(Number(output.textContent));
+  const [num1, operator, num2] = expression;
+  let answer = null;
+
+  switch (operator) {
+    case "÷":
+      answer = calculate("%", num1, num2);
+      break;
+    case "+":
+      answer = num1 + (num1 / 100) * num2;
+      break;
+    case "-":
+      answer = num1 - (num1 / 100) * num2;
+      break;
+    case "×":
+      answer = (num1 * num2) / 100;
+  }
+
+  output.textContent = validateAnswer(answer);
+  clearExpression();
 }
 
 const expression = [];
@@ -90,3 +154,16 @@ backButton.addEventListener("click", backSpace);
 
 const clearButtton = document.querySelector("#button-clear");
 clearButtton.addEventListener("click", clearOutput);
+
+const plusMinusButton = document.querySelector("#button-plus-minus");
+plusMinusButton.addEventListener("click", () => {
+  if (!output.textContent.startsWith("-")) {
+    output.textContent = "-" + output.textContent;
+  }
+});
+
+const sqrtButton = document.querySelector("#button-sqrt");
+sqrtButton.addEventListener("click", getSqrt);
+
+const percentButton = document.querySelector("#button-percent");
+percentButton.addEventListener("click", getPercentage);
