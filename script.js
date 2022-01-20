@@ -29,6 +29,7 @@ function percent(a, b) {
 }
 
 function calculate(operator, num1, num2) {
+  //do one of the above operations depending on operator
   const operations = {
     "ₓ²": power,
     "×": multiply,
@@ -43,13 +44,12 @@ function calculate(operator, num1, num2) {
   return operation(num1, num2);
 }
 
-function showOutput(event) {
-  if (output.textContent.length < 20) {
-    output.textContent += event.target.textContent;
-  }
+function clearOutput() {
+  output.textContent = "";
 }
 
 function buildExpression(event) {
+  //build expression to evaluate from user input
   if (output.textContent) {
     const operator = event.target.textContent;
     expression.push(Number(output.textContent));
@@ -58,12 +58,23 @@ function buildExpression(event) {
   }
 }
 
+function showOutput(event) {
+  if (output.textContent.length < 20) {
+    output.textContent += event.target.textContent;
+  }
+}
+
 function validateAnswer(answer, input) {
   if (isNaN(answer)) answer = `Invalid input...${input.join(" ").slice(-5)}`;
   return answer === Infinity ? "Can't divide by zero..." : answer;
 }
 
+function outputValid() {
+  return output.textContent && output.textContent !== "-";
+}
+
 function doOperationsInOrder(expression) {
+  //calculate expression in correct mathematical order
   const order = ["ₓ²", "÷", "×", "-", "+"];
   const input = expression.slice(0);
 
@@ -79,24 +90,17 @@ function doOperationsInOrder(expression) {
   return validateAnswer(answer, input);
 }
 
-function outputValid() {
-  return output.textContent && output.textContent !== "-";
-}
-
 function evaluateExpression() {
+  //pass input to doOperationsInorder() and display answer
   if (outputValid()) expression.push(Number(output.textContent));
   const answer = doOperationsInOrder(expression);
   output.textContent = answer;
-  // clearOutput();
 }
 
 function backSpace() {
+  //delete last character
   const text = output.textContent;
   output.textContent = text.slice(0, -1);
-}
-
-function clearOutput() {
-  output.textContent = "";
 }
 
 function clearExpression() {
