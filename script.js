@@ -1,5 +1,3 @@
-"use strict";
-
 function add(a, b) {
   return a + b;
 }
@@ -29,7 +27,7 @@ function percent(a, b) {
 }
 
 function calculate(operator, num1, num2) {
-  //do one of the above operations depending on operator
+  // do one of the above operations depending on operator
   const operations = {
     "ₓ²": power,
     "×": multiply,
@@ -49,7 +47,7 @@ function clearOutput() {
 }
 
 function buildExpression(event) {
-  //build expression to evaluate from user input
+  // build expression to evaluate from user input
   if (output.textContent) {
     const operator = event.target.textContent;
     expression.push(Number(output.textContent));
@@ -65,7 +63,7 @@ function showOutput(event) {
 }
 
 function validateAnswer(answer, input) {
-  if (isNaN(answer)) answer = `Invalid input...${input.join(" ").slice(-5)}`;
+  if (answer.isNaN()) return `Invalid input...${input.join(" ").slice(-5)}`;
   return answer === Infinity ? "Can't divide by zero..." : answer;
 }
 
@@ -74,31 +72,31 @@ function outputValid() {
 }
 
 function doOperationsInOrder(expression) {
-  //calculate expression in correct mathematical order
+  // calculate expression in correct mathematical order
   const order = ["ₓ²", "÷", "×", "-", "+"];
   const input = [...expression];
 
-  for (let operator of order) {
+  order.forEach((operator) => {
     while (expression.includes(operator)) {
       const index = expression.findIndex((item) => item === operator);
       const [num1, op, num2] = expression.splice(index - 1, 3);
       const result = calculate(op, num1, num2);
       expression.splice(index - 1, 0, result);
     }
-  }
+  });
   const answer = expression.pop();
   return validateAnswer(answer, input);
 }
 
 function evaluateExpression() {
-  //pass input to doOperationsInorder() and display answer
+  // pass input to doOperationsInorder() and display answer
   if (outputValid()) expression.push(Number(output.textContent));
   const answer = doOperationsInOrder(expression);
   output.textContent = answer;
 }
 
 function backSpace() {
-  //delete last character
+  // delete last character
   const text = output.textContent;
   output.textContent = text.slice(0, -1);
 }
@@ -144,13 +142,11 @@ const operandButtons = document.querySelectorAll(".operand-btn");
 operandButtons.forEach((btn) => btn.addEventListener("click", showOutput));
 
 const operatorButtons = document.querySelectorAll(".operator-btn");
-operatorButtons.forEach((btn) =>
-  btn.addEventListener("click", buildExpression)
-);
+operatorButtons.forEach((btn) => btn.addEventListener("click", buildExpression));
 
 const evaluateButtons = document.querySelectorAll(".evaluate-btn");
-evaluateButtons.forEach((btn) =>
-  btn.addEventListener("click", evaluateExpression)
+evaluateButtons.forEach(
+  (btn) => btn.addEventListener("click", evaluateExpression)
 );
 
 const backButton = document.querySelector("#button-back");
@@ -162,7 +158,7 @@ clearButtton.addEventListener("click", clearOutput);
 const plusMinusButton = document.querySelector("#button-plus-minus");
 plusMinusButton.addEventListener("click", () => {
   if (!output.textContent.startsWith("-")) {
-    output.textContent = "-" + output.textContent;
+    output.textContent = `-${output.textContent}`;
   }
 });
 
