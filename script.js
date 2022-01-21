@@ -63,7 +63,7 @@ function showOutput(event) {
 }
 
 function validateAnswer(answer, input) {
-  if (answer.isNaN()) return `Invalid input...${input.join(" ").slice(-5)}`;
+  if (Number.isNaN(answer)) return `Invalid input...${input.join(" ").slice(-5)}`;
   return answer === Infinity ? "Can't divide by zero..." : answer;
 }
 
@@ -84,6 +84,7 @@ function doOperationsInOrder(expression) {
       expression.splice(index - 1, 0, result);
     }
   });
+  if (!expression.length) return;
   const answer = expression.pop();
   return validateAnswer(answer, input);
 }
@@ -130,7 +131,6 @@ function getPercentage() {
     case "×":
       answer = (num1 * num2) / 100;
   }
-
   output.textContent = validateAnswer(answer);
   clearExpression();
 }
